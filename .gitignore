@@ -1,0 +1,21 @@
+# Arquivos de cache e temporários do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Pasta do ambiente virtual
+venv/
+env/
+
+# Banco de dados do Django
+db.sqlite3
+/media/
+/static/
+
+# Arquivos de configuração e de ambiente
+.env
+.DS_Store # Arquivos de sistemas operacionais
+
+# Diretórios de migrações que podem causar conflitos
+*/migrations/*

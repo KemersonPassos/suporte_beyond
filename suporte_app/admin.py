@@ -26,31 +26,51 @@ class ProtocoloAdmin(admin.ModelAdmin):
     
     inlines = [AtualizacaoProtocoloInline]
     
-    # Campos que aparecerão na página de adição/alteração
-    fieldsets = (
-        ('Informações do Protocolo', {
-            'fields': ('id', 'cliente', 'tecnico_responsavel', 'dispositivo', 'buic'),
-            'description': 'O ID e Técnico Responsável são preenchidos automaticamente.'
-        }),
-        ('Detalhes do Problema', {
-            'fields': ('descricao', 'status'),
-            'classes': ('wide',),
-        }),
-        ('Informações MQTT (Opcional)', {
-            'fields': ('topico_mqtt', 'payload_exemplo'),
-            'classes': ('collapse',),
-        }),
-    )
-    
     readonly_fields = ('id', 'tecnico_responsavel', 'data_criacao')
+    
+    # Remove os fieldsets fixos - vamos usar get_fieldsets dinâmico
+
+    def get_fieldsets(self, request, obj=None):
+        """
+        Retorna fieldsets diferentes para criação e edição
+        """
+        if obj:  # Editando protocolo existente
+            return (
+                ('Informações do Protocolo', {
+                    'fields': ('id', 'cliente', 'tecnico_responsavel', 'dispositivo', 'buic'),
+                    'description': 'O ID e Técnico Responsável são preenchidos automaticamente.'
+                }),
+                ('Detalhes do Problema', {
+                    'fields': ('descricao', 'status'),
+                    'classes': ('wide',),
+                }),
+                ('Informações MQTT (Opcional)', {
+                    'fields': ('topico_mqtt', 'payload_exemplo'),
+                    'classes': ('collapse',),
+                }),
+            )
+        else:  # Criando novo protocolo
+            return (
+                ('Informações do Protocolo', {
+                    'fields': ('cliente', 'tecnico_responsavel', 'dispositivo', 'buic'),
+                    'description': 'O Técnico Responsável é preenchido automaticamente.'
+                }),
+                ('Detalhes do Problema', {
+                    'fields': ('descricao', 'status'),
+                    'classes': ('wide',),
+                }),
+                ('Informações MQTT (Opcional)', {
+                    'fields': ('topico_mqtt', 'payload_exemplo'),
+                    'classes': ('collapse',),
+                }),
+            )
 
     def get_readonly_fields(self, request, obj=None):
         """
         Torna o ID e tecnico_responsavel readonly sempre
         """
-        readonly = list(self.readonly_fields)
         if obj:  # Se está editando um protocolo existente
-            return readonly
+            return ('id', 'tecnico_responsavel', 'data_criacao')
         return ('tecnico_responsavel',)  # Quando criando, só o técnico é readonly
 
     def save_model(self, request, obj, form, change):

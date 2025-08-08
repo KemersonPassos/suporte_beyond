@@ -36,22 +36,23 @@ class Dispositivo(models.Model):
 class Protocolo(models.Model):
     """
     Modelo principal para o registro de protocolos.
-    Adicionado o campo de status.
     """
     dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE)
-    topico_mqtt = models.CharField(max_length=100)
-    payload_exemplo = models.TextField()
+    buic = models.CharField(max_length=100, blank=True, null=True) # Campo BUIC adicionado
+    topico_mqtt = models.CharField(max_length=100, blank=True, null=True)
+    payload_exemplo = models.TextField(blank=True, null=True)
     descricao = models.TextField(blank=True)
     
-    # Campo de status com as opções definidas acima
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default='aberto'
     )
+    # Adicionado o autor do protocolo
+    autor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"Protocolo {self.topico_mqtt} ({self.dispositivo.nome})"
+        return f"Protocolo {self.id} ({self.dispositivo.nome})"
 
 class AtualizacaoProtocolo(models.Model):
     """
@@ -59,13 +60,8 @@ class AtualizacaoProtocolo(models.Model):
     """
     protocolo = models.ForeignKey(Protocolo, on_delete=models.CASCADE, related_name='atualizacoes')
     
-    # Campo para armazenar o texto da atualização
     texto = models.TextField()
-    
-    # Campo para registrar a data e hora da atualização
     data_atualizacao = models.DateTimeField(auto_now_add=True)
-    
-    # Campo para saber quem fez a alteração
     autor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     
     def __str__(self):
